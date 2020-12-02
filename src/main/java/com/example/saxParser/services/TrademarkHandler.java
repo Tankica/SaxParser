@@ -49,7 +49,7 @@ public class TrademarkHandler extends DefaultHandler {
         if (qName.equals("Is")) {
             trademark.setImagesInfo(list);
             logger.info(String.valueOf(trademark));
-            fileManager.writeTrademarkIntoTxtFile(trademark);
+            fileManager.manageTrademark(trademark);
         }
     }
 }

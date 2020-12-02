@@ -20,27 +20,27 @@ public class FileManager {
         fileNumber = 0;
     }
 
-    public void writeTrademarkIntoTxtFile(Trademark trademark) {
+    public void manageTrademark(Trademark trademark) {
 
         if (numOfTrademarksInFile == 0) {
             try (FileWriter myWriter = new FileWriter(InputParameters.getOutputDir() + "/OO_" + fileNumber + ".txt", StandardCharsets.UTF_8)) {
                 myWriter.write(" ");
                 numOfTrademarksInFile++;
-                writeTrademarkIntoFile(trademark);
+                writeTrademarkIntoTxtFile(trademark);
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }
         } else if (numOfTrademarksInFile == InputParameters.getTrademarksPerFile() - 1) {
             numOfTrademarksInFile = 0;
             fileNumber++;
-            writeTrademarkIntoFile(trademark);
+            writeTrademarkIntoTxtFile(trademark);
         } else {
             numOfTrademarksInFile++;
-            writeTrademarkIntoFile(trademark);
+            writeTrademarkIntoTxtFile(trademark);
         }
     }
 
-    private void writeTrademarkIntoFile(Trademark trademark) {
+    private void writeTrademarkIntoTxtFile(Trademark trademark) {
         try (FileWriter myWriter = new FileWriter(InputParameters.getOutputDir() + "/OO_" + fileNumber + ".txt", StandardCharsets.UTF_8, true)) {
             myWriter.append(System.lineSeparator())
                     .append("****new trademark****")
