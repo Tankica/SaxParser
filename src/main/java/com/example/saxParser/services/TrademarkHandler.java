@@ -4,14 +4,14 @@ import com.example.saxParser.models.ImageInfo;
 import com.example.saxParser.models.Trademark;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Service
 public class TrademarkHandler extends DefaultHandler {
@@ -20,10 +20,12 @@ public class TrademarkHandler extends DefaultHandler {
 
     Trademark trademark;
     List<ImageInfo> list;
-    FileWriter myWriter;
 
-    public TrademarkHandler() throws IOException {
-        myWriter = new FileWriter("trademark.txt");
+    FileManager fileManager;
+
+    @Autowired
+    public TrademarkHandler(FileManager fileManager) {
+        this.fileManager = fileManager;
     }
 
     @Override
@@ -47,24 +49,7 @@ public class TrademarkHandler extends DefaultHandler {
         if (qName.equals("Is")) {
             trademark.setImagesInfo(list);
             logger.info(String.valueOf(trademark));
-            writeTrademarkIntoTxtFile();
-        }
-    }
-
-    private void writeTrademarkIntoTxtFile() {
-        try {
-            myWriter.append("\n****new trademark****")
-                    .append("\nUI ")
-                    .append(trademark.getUi());
-
-            for (ImageInfo info : trademark.getImagesInfo()) {
-                myWriter.append("\nURL ")
-                        .append(info.getUrl())
-                        .append("\nHASHCODE ")
-                        .append(info.getHashcode());
-            }
-        }catch (IOException e){
-            logger.error(e.getMessage());
+            fileManager.writeTrademarkIntoTxtFile(trademark);
         }
     }
 }
