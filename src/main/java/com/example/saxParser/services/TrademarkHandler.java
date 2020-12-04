@@ -2,6 +2,7 @@ package com.example.saxParser.services;
 
 import com.example.saxParser.models.ImageInfo;
 import com.example.saxParser.models.Trademark;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,12 @@ public class TrademarkHandler extends DefaultHandler {
     List<ImageInfo> list;
 
     FileManager fileManager;
+    ImageManager imageManager;
 
     @Autowired
-    public TrademarkHandler(FileManager fileManager) {
+    public TrademarkHandler(FileManager fileManager, ImageManager imageManager) {
         this.fileManager = fileManager;
+        this.imageManager = imageManager;
     }
 
     @Override
@@ -50,6 +53,7 @@ public class TrademarkHandler extends DefaultHandler {
             trademark.setImagesInfo(list);
             logger.info(String.valueOf(trademark));
             fileManager.manageTrademark(trademark);
+            imageManager.manageImageFromTrademark(trademark);
         }
     }
 }
