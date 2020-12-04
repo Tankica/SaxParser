@@ -13,7 +13,7 @@ import java.net.URL;
 @Service
 public class ImageManager {
 
-    private final Logger logger = LoggerFactory.getLogger(TrademarkHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(ImageManager.class);
     private static final String BASE_URL = "https://image.ipsensus.com//";
     int imageNumber;
 
