@@ -72,9 +72,9 @@ public class ImageManager {
     }
 
     private boolean netIsAvailable(URL url) {
-        int failRepliesCounter = 0;
-        while (failRepliesCounter != maxReplies) {
-            failRepliesCounter++;
+        int failRetriesCounter = 0;
+        while (failRetriesCounter != maxReplies) {
+            failRetriesCounter++;
             try {
                 URLConnection connection = url.openConnection();
                 connection.connect();
