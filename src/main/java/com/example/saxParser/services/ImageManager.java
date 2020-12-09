@@ -19,8 +19,8 @@ public class ImageManager {
 
     @Value("${app.BaseURL}")
     String baseURL;
-    @Value("${app.maxReplies}")
-    Integer maxReplies;
+    @Value("${app.maxRetries}")
+    Integer maxRetries;
     @Value("${app.maxFailReq}")
     Integer maxFailReq;
 
@@ -73,7 +73,7 @@ public class ImageManager {
 
     private boolean netIsAvailable(URL url) {
         int failRetriesCounter = 0;
-        while (failRetriesCounter != maxReplies) {
+        while (failRetriesCounter != maxRetries) {
             failRetriesCounter++;
             try {
                 URLConnection connection = url.openConnection();
