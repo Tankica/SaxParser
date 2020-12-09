@@ -2,7 +2,6 @@ package com.example.saxParser.services;
 
 import com.example.saxParser.models.ImageInfo;
 import com.example.saxParser.models.Trademark;
-import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +11,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
 
 
 @Service
@@ -53,7 +53,17 @@ public class TrademarkHandler extends DefaultHandler {
             trademark.setImagesInfo(list);
             logger.info(String.valueOf(trademark));
             fileManager.manageTrademark(trademark);
-            imageManager.manageImageFromTrademark(trademark);
+
+            ExecutorService threadExecutor = Executors.newScheduledThreadPool(1);
+            Callable<String> callable = () -> imageManager.manageImageFromTrademark(trademark);
+            try {
+                Future<String> future = threadExecutor.submit(callable);
+                future.get();
+            } catch (ExecutionException | InterruptedException e) {
+                logger.error(e.getMessage());
+                System.exit(1);
+
+            }
         }
     }
 }

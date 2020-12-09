@@ -44,7 +44,9 @@ public class InputParameters {
                     break;
                 case 'p':
                     outputImg = new File(g.getOptarg());
-                    createFileIfNotExists(outputImg);
+                    if (!outputImg.exists()) {
+                        outputImg.mkdir();
+                    }
                     break;
 
                 default:

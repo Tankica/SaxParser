@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class FileManager {
 
-    private final Logger logger = LoggerFactory.getLogger(FileManager.class);
+    private final Logger logger = LoggerFactory.getLogger(TrademarkHandler.class);
     public static int numOfTrademarksInFile;
     public static int fileNumber;
 

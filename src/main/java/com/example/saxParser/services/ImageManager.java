@@ -5,22 +5,34 @@ import com.example.saxParser.models.ImageInfo;
 import com.example.saxParser.models.Trademark;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.net.URL;
+import java.net.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Service
 public class ImageManager {
 
+    @Value("${app.BaseURL}")
+    String baseURL;
+    @Value("${app.maxReplies}")
+    Integer maxReplies;
+    @Value("${app.maxFailReq}")
+    Integer maxFailReq;
+
     private final Logger logger = LoggerFactory.getLogger(ImageManager.class);
-    private static final String BASE_URL = "https://image.ipsensus.com//";
+    private static int failReqCounter = 0;
     int imageNumber;
 
-    public void manageImageFromTrademark(Trademark trademark) {
+
+    public String manageImageFromTrademark(Trademark trademark) throws MalformedURLException {
         imageNumber = 0;
         for (ImageInfo imageInfo : trademark.getImagesInfo()) {
-            String currentImgURL = BASE_URL + imageInfo.getUrl();
+            String currentImgURL = baseURL + imageInfo.getUrl();
             String newImageName = InputParameters.getOutputImg()    //trademarkImages/0DA80A10-A44A-4EBE-8902-E8CAD757E7AE_0.png
                     + File.separator
                     + trademark.getUi()
@@ -29,17 +41,46 @@ public class ImageManager {
                     + ".png";
             imageNumber++;
 
-            try (InputStream in = new BufferedInputStream(new URL(currentImgURL).openStream());
-                 OutputStream out = new FileOutputStream(newImageName)) {
-                byte[] buff = new byte[1024];
-                int length;
-                while ((length = in.read(buff)) != -1) {
-                    out.write(buff, 0, length);
-                }
-            } catch (Exception e) {
-                logger.error(e.getMessage());
+            Path path = Paths.get(newImageName);
+            if (Files.exists(path)) {
+                return "";
             }
+            final URL url = new URL(currentImgURL);
+            if (netIsAvailable(url)) {
+                saveImage(url, newImageName);
+            } else {
+                failReqCounter++;
+                if (failReqCounter == maxFailReq) {
+                    throw new RuntimeException("Internet connection error");
+                }
+            }
+        }
+        return "";
+    }
+
+    private void saveImage(URL url, String newImageName) {
+        try (InputStream in = new BufferedInputStream(url.openStream());
+             OutputStream out = new FileOutputStream(newImageName)) {
+            byte[] buff = new byte[1024];
+            int length;
+            while ((length = in.read(buff)) != -1) {
+                out.write(buff, 0, length);
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
         }
     }
 
+    private boolean netIsAvailable(URL url) {
+        int failRepliesCounter = 0;
+        while (failRepliesCounter != maxReplies) {
+            failRepliesCounter++;
+            try {
+                URLConnection connection = url.openConnection();
+                connection.connect();
+                return true;
+            } catch (IOException ignored) {}
+        }
+        return false;
+    }
 }
