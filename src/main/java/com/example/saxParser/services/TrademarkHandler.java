@@ -53,17 +53,7 @@ public class TrademarkHandler extends DefaultHandler {
             trademark.setImagesInfo(list);
             logger.info(String.valueOf(trademark));
             fileManager.manageTrademark(trademark);
-
-            ExecutorService threadExecutor = Executors.newScheduledThreadPool(1);
-            Callable<String> callable = () -> imageManager.manageImageFromTrademark(trademark);
-            try {
-                Future<String> future = threadExecutor.submit(callable);
-                future.get();
-            } catch (ExecutionException | InterruptedException e) {
-                logger.error(e.getMessage());
-                System.exit(1);
-
-            }
+            imageManager.manageImageFromTrademark(trademark);
         }
     }
 }

@@ -29,7 +29,7 @@ public class ImageManager {
     int imageNumber;
 
 
-    public String manageImageFromTrademark(Trademark trademark) throws MalformedURLException {
+    public void manageImageFromTrademark(Trademark trademark) {
         imageNumber = 0;
         for (ImageInfo imageInfo : trademark.getImagesInfo()) {
             String currentImgURL = baseURL + imageInfo.getUrl();
@@ -42,45 +42,51 @@ public class ImageManager {
             imageNumber++;
 
             Path path = Paths.get(newImageName);
-            if (Files.exists(path)) {
-                return "";
+            if (!Files.exists(path)) {
+                downloadImage(currentImgURL, newImageName);
             }
-            final URL url = new URL(currentImgURL);
-            if (netIsAvailable(url)) {
-                saveImage(url, newImageName);
-            } else {
-                failReqCounter++;
-                if (failReqCounter == maxFailReq) {
-                    throw new RuntimeException("Internet connection error");
+        }
+    }
+
+    private void downloadImage(String currentImgURL, String newImageName) {
+
+        for (int failRetriesCounter = 0; failRetriesCounter <= maxRetries; failRetriesCounter++) {
+            try {
+                URL url = new URL(currentImgURL);
+                URLConnection connection = url.openConnection();
+                connection.connect();
+
+                try (InputStream in = new BufferedInputStream(url.openStream());
+                     OutputStream out = new FileOutputStream(newImageName)) {
+                    byte[] buff = new byte[1024];
+                    int length;
+                    while ((length = in.read(buff)) != -1) {
+                        out.write(buff, 0, length);
+                    }
+                    logger.info("Image " + url.toString() + " has been downloaded");
+                }
+
+                break;
+
+            } catch (Exception e) {
+                if (failRetriesCounter < maxRetries) {
+                    int sleepTime = 2;
+                    logger.info("Failed to retrieve image " + currentImgURL + " (attempt " + (failRetriesCounter + 1) + "/"
+                            + maxRetries + "), retrying in " + sleepTime + "s...");
+                    try {
+                        Thread.sleep(1000 * sleepTime);
+                    } catch (InterruptedException e2) {
+                        throw new RuntimeException("Interrupted");
+                    }
+                } else {
+                    failReqCounter++;
+                    logger.error("Failed to retrieve the image " + currentImgURL + " " + e);
+                    if (failReqCounter >= maxFailReq) {
+                        logger.error("maxFailedRequests reached " + failRetriesCounter + "/" + maxFailReq);
+                        throw new RuntimeException("Internet connection problem");
+                    }
                 }
             }
         }
-        return "";
-    }
-
-    private void saveImage(URL url, String newImageName) {
-        try (InputStream in = new BufferedInputStream(url.openStream());
-             OutputStream out = new FileOutputStream(newImageName)) {
-            byte[] buff = new byte[1024];
-            int length;
-            while ((length = in.read(buff)) != -1) {
-                out.write(buff, 0, length);
-            }
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private boolean netIsAvailable(URL url) {
-        int failRetriesCounter = 0;
-        while (failRetriesCounter != maxRetries) {
-            failRetriesCounter++;
-            try {
-                URLConnection connection = url.openConnection();
-                connection.connect();
-                return true;
-            } catch (IOException ignored) {}
-        }
-        return false;
     }
 }
