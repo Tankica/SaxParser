@@ -54,8 +54,6 @@ public class ImageManager {
         for (int failRetriesCounter = 0; failRetriesCounter <= maxRetries; failRetriesCounter++) {
             try {
                 URL url = new URL(currentImgURL);
-                URLConnection connection = url.openConnection();
-                connection.connect();
 
                 try (InputStream in = new BufferedInputStream(url.openStream());
                      OutputStream out = new FileOutputStream(newImageName)) {
@@ -82,8 +80,8 @@ public class ImageManager {
                 } else {
                     failReqCounter++;
                     logger.error("Failed to retrieve the image " + currentImgURL + " " + e);
-                    if (failReqCounter >= 2) {
-                        logger.error("maxFailedRequests reached " + failRetriesCounter + "/" + maxFailReq);
+                    if (failReqCounter >= maxFailReq) {
+                        logger.error("maxFailedRequests reached ");
                         throw new RuntimeException("Internet connection problem");
                     }
                 }

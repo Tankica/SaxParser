@@ -25,6 +25,7 @@ public class TrademarkHandler extends DefaultHandler {
     FileManager fileManager;
     ImageManager imageManager;
 
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Autowired
     public TrademarkHandler(FileManager fileManager, ImageManager imageManager) {
@@ -55,17 +56,17 @@ public class TrademarkHandler extends DefaultHandler {
             logger.info(String.valueOf(trademark));
             fileManager.manageTrademark(trademark);
 
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
             Callable<String> task = () -> imageManager.manageImageFromTrademark(trademark);
             Future<String> future = executorService.submit(task);
             try {
                 future.get();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
-                System.exit(1);
-            }finally {
-                executorService.shutdown();
             }
         }
+        if (qName.equals("root")) {
+            executorService.shutdownNow();
+        }
+
     }
 }
