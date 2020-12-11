@@ -29,7 +29,7 @@ public class ImageManager {
     int imageNumber;
 
 
-    public void manageImageFromTrademark(Trademark trademark) {
+    public String manageImageFromTrademark(Trademark trademark) {
         imageNumber = 0;
         for (ImageInfo imageInfo : trademark.getImagesInfo()) {
             String currentImgURL = baseURL + imageInfo.getUrl();
@@ -46,6 +46,7 @@ public class ImageManager {
                 downloadImage(currentImgURL, newImageName);
             }
         }
+        return "";
     }
 
     private void downloadImage(String currentImgURL, String newImageName) {
@@ -81,7 +82,7 @@ public class ImageManager {
                 } else {
                     failReqCounter++;
                     logger.error("Failed to retrieve the image " + currentImgURL + " " + e);
-                    if (failReqCounter >= maxFailReq) {
+                    if (failReqCounter >= 2) {
                         logger.error("maxFailedRequests reached " + failRetriesCounter + "/" + maxFailReq);
                         throw new RuntimeException("Internet connection problem");
                     }
