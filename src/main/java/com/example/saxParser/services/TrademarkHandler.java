@@ -67,6 +67,5 @@ public class TrademarkHandler extends DefaultHandler {
         if (qName.equals("root")) {
             executorService.shutdownNow();
         }
-
     }
 }

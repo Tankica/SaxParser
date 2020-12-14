@@ -47,7 +47,6 @@ public class ImageManager {
         }
         return "";
     }
-
     private void downloadImage(String currentImgURL, String newImageName) {
 
         for (int failRetriesCounter = 0; failRetriesCounter <= maxRetries; failRetriesCounter++) {
