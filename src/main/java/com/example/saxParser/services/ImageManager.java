@@ -28,7 +28,6 @@ public class ImageManager {
     private static int failReqCounter = 0;
     int imageNumber;
 
-
     public String manageImageFromTrademark(Trademark trademark) {
         imageNumber = 0;
         for (ImageInfo imageInfo : trademark.getImagesInfo()) {
